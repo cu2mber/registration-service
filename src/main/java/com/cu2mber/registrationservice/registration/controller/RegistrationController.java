@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/registers")
+@RequestMapping("/registrations")
 public class RegistrationController {
 
     @PostMapping
