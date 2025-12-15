@@ -6,37 +6,33 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@ToString
-@EqualsAndHashCode
-public class RegistrationResponse {
+public record RegistrationResponse(
+        @JsonProperty("no")
+        Long registerNo,
 
-    @JsonProperty("no")
-    Long registerNo;
+        Long recruitmentNo,
 
-    Long recruitmentNo;
+        Long memberNo,
 
-    Long memberNo;
+        @JsonProperty("title")
+        String recruitmentTitle,
 
-//    @Setter
-//    @JsonProperty("recruit")
-//    Long recruitmentName;
+        @JsonProperty("participant")
+        Integer participantCount,
 
-    @JsonProperty("participant")
-    Integer participantCount;
+        @JsonProperty("date")
+        LocalDate registrationDate,
 
-    @JsonProperty("date")
-    LocalDate registrationDate;
+        @EqualsAndHashCode.Exclude
+        LocalDateTime createdAt,
 
-    @EqualsAndHashCode.Exclude
-    LocalDateTime createdAt;
+        @EqualsAndHashCode.Exclude
+        LocalDateTime deletedAt,
 
-    @EqualsAndHashCode.Exclude
-    LocalDateTime deletedAt;
+        Boolean isCanceled,
 
-    Boolean isCanceled;
+        Boolean isRefunded
+) {
 
-    Boolean isRefunded;
+
 }

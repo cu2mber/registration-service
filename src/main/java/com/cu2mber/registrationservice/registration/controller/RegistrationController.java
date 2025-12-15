@@ -27,6 +27,7 @@ public class RegistrationController {
         RegistrationCreateCommand command = new RegistrationCreateCommand(
                 1L,
                 request.recruitmentNo(),
+                request.recruitmentTitle(),
                 request.participantCount(),
                 request.registrationDate()
         );
@@ -35,6 +36,7 @@ public class RegistrationController {
                 1L,
                 request.recruitmentNo(),
                 1L,
+                request.recruitmentTitle(),
                 2,
                 request.registrationDate(),
                 LocalDateTime.now(),
@@ -51,6 +53,7 @@ public class RegistrationController {
                 1L,
                 1L,
                 1L,
+                "모집",
                 2,
                 LocalDate.of(2026, 3, 1),
                 LocalDateTime.now(),
@@ -67,6 +70,7 @@ public class RegistrationController {
                 1L,
                 1L,
                 1L,
+                "모집",
                 2,
                 LocalDate.of(2026, 3, 1),
                 LocalDateTime.now()

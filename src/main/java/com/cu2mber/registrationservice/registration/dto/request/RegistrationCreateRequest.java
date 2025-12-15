@@ -7,6 +7,9 @@ import java.time.LocalDate;
 public record RegistrationCreateRequest(
 
         Long recruitmentNo,
+        
+        @JsonProperty("title")
+        String recruitmentTitle,
 
         @JsonProperty("participant")
         Integer participantCount,
