@@ -63,7 +63,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         ops.put(key, "data", pending);
         registerTemplate.expire(key, Duration.ofMinutes(10));
 
-        return new RegistrationPendingResponse(pending.orderId(), pending.recruitmentNo(), pending.recruitmentTitle(), pending.participantCount(), pending.registrationDate());
+        return new RegistrationPendingResponse(pending.orderId(), pending.recruitmentNo(), pending.recruitmentTitle(), pending.participantCount(), amount, pending.registrationDate());
     }
 
     @Override
