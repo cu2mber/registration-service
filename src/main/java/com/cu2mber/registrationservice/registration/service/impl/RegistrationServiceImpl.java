@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RegistrationServiceImpl implements RegistrationService {
 
@@ -39,10 +40,15 @@ public class RegistrationServiceImpl implements RegistrationService {
     public RegistrationPendingResponse prepareRegistration(RegistrationCreateCommand command) {
 
         /** todo 가격 책정 수정
+         * 문제: 트래픽 발생 가능성 큼
          * CQRS 적용 - Kafka
          * 모집 글 가격 * 인원
          */
         RecruitmentSummaryResponse recruitInfo = recruitClient.getRecruit(command.recruitmentNo());
+        if(!recruitInfo.recruitmentStatus().equals("OPEN")) {
+            throw new IllegalArgumentException("신청 할 수 없습니다.");
+        }
+
         BigDecimal amount = recruitInfo.price().multiply(BigDecimal.valueOf(command.participantCount()));
 
         String orderId = UUID.randomUUID().toString();
@@ -67,7 +73,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
-    @Transactional
     public RegistrationCreateResponse createRegistration(RegistrationCreateCommand command) {
 
         Registration registration = Registration.ofNewRegistration(
@@ -93,8 +98,14 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional(readOnly = true)
     public RegistrationResponse getRegistration(Long registrationNo) {
+
+        /** todo: 권한에 따라 접근 제한
+         * 일반 사용자: 본인 신청만 조회 가능
+         * 지자체/관리자: 해당 행사 또는 전체 조회 가능
+         */
         Registration registration = registrationRepository.findById(registrationNo)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 내역입니다."));
+
         return new RegistrationResponse(
                 registration.getRegistrationNo(),
                 registration.getRecruitmentNo(),
@@ -140,7 +151,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registration = registrationRepository.findById(command.registrationNo())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 내역입니다."));
 
-        registration.cancel();
+        registration.cancel(command.memberNo());
     }
 
     private String redisKey(Long memberNo,String orderId) {

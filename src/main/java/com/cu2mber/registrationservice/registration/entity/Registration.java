@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "event_registration")
@@ -66,7 +67,16 @@ public class Registration {
         return new Registration(recruitmentNo, memberNo, recruitmentTitle, participantCount,registrationDate, false, false);
     }
 
-    public void cancel() {
+    public void cancel(Long memberNo) {
+
+        if(!Objects.equals(this.memberNo, memberNo)) {
+            throw new IllegalArgumentException("신청자가 아닙니다.");
+        }
+
+        if(this.isCanceled) {
+            throw new IllegalArgumentException("이미 취소된 건 입니다.");
+        }
+
         this.isCanceled = true;
         this.deletedAt = LocalDateTime.now();
     }
