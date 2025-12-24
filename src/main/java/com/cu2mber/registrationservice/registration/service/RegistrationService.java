@@ -4,11 +4,14 @@ import com.cu2mber.registrationservice.registration.dto.PageResult;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCancelCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCreateCommand;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationCreateResponse;
+import com.cu2mber.registrationservice.registration.dto.response.RegistrationPendingResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface RegistrationService {
+
+    RegistrationPendingResponse prepareRegistration(RegistrationCreateCommand command);
 
     RegistrationCreateResponse createRegistration(RegistrationCreateCommand command);
 

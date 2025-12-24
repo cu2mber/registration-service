@@ -1,4 +1,4 @@
-package com.cu2mber.registrationservice.common.config.config;
+package com.cu2mber.registrationservice.common.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CommonConfig {
+public class QuerydslConfig {
 
     @Bean
     public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
