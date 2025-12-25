@@ -19,7 +19,6 @@ public record RegistrationCreateResponse(
         @JsonProperty("date")
         LocalDate registrationDate,
 
-        @EqualsAndHashCode.Exclude
         LocalDateTime createdAt
 ) {
 }

@@ -23,10 +23,8 @@ public record RegistrationResponse(
         @JsonProperty("date")
         LocalDate registrationDate,
 
-        @EqualsAndHashCode.Exclude
         LocalDateTime createdAt,
 
-        @EqualsAndHashCode.Exclude
         LocalDateTime deletedAt,
 
         Boolean isCanceled,

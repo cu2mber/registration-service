@@ -23,7 +23,6 @@ public record RegistrationSummaryResponse(
         @JsonProperty("date")
         LocalDate registrationDate,
 
-        @EqualsAndHashCode.Exclude
         LocalDateTime createdAt
 ) {
 }
