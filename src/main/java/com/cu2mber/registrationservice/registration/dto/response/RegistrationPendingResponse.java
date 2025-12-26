@@ -1,19 +1,23 @@
-package com.cu2mber.registrationservice.registration.dto.request;
+package com.cu2mber.registrationservice.registration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record RegistrationCreateRequest(
+public record RegistrationPendingResponse(
+        String orderId,
 
-        @JsonProperty("recruitNo")
-        Long recruitmentNo,
-        
+        Long recruitNo,
+
         @JsonProperty("title")
         String recruitmentTitle,
 
         @JsonProperty("participant")
         Integer participantCount,
+
+        @JsonProperty("amount")
+        BigDecimal registrationAmount,
 
         @JsonProperty("departDate")
         LocalDate registrationDate

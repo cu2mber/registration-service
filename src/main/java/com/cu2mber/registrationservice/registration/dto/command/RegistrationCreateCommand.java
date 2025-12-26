@@ -7,6 +7,8 @@ public record RegistrationCreateCommand(
         Long memberNo,
 
         Long recruitmentNo,
+        
+        String recruitmentTitle,
 
         Integer participantCount,
 

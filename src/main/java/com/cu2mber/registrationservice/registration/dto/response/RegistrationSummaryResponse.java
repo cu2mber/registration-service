@@ -1,35 +1,28 @@
 package com.cu2mber.registrationservice.registration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@ToString
-@EqualsAndHashCode
-public class RegistrationSummaryResponse {
+public record RegistrationSummaryResponse(
+        @JsonProperty("no")
+        Long registerNo,
 
-    @JsonProperty("no")
-    Long registerNo;
+        Long recruitmentNo,
 
-    Long recruitmentNo;
+        Long memberNo,
 
-    Long memberNo;
+        @JsonProperty("title")
+        String recruitmentTitle,
 
-//    @Setter
-//    @JsonProperty("recruit")
-//    Long recruitmentName;
+        @JsonProperty("participant")
+        Integer participantCount,
 
-    @JsonProperty("participant")
-    Integer participantCount;
+        @JsonProperty("date")
+        LocalDate registrationDate,
 
-    @JsonProperty("date")
-    LocalDate registrationDate;
-
-    @EqualsAndHashCode.Exclude
-    LocalDateTime createdAt;
+        LocalDateTime createdAt
+) {
 }
