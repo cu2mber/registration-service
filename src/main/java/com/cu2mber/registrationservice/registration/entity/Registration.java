@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "event_registration")
@@ -27,6 +28,9 @@ public class Registration {
 
     @Column(name = "member_no", nullable = false)
     Long memberNo;
+
+    @Column(name = "order_id", nullable = false, unique = true)
+    UUID orderId;
 
     @Column(name = "recruit_title", nullable = true)
     String recruitmentTitle;
@@ -60,9 +64,10 @@ public class Registration {
         this.createdAt = LocalDateTime.now();
     }
 
-    private Registration(Long recruitmentNo, Long memberNo, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace, Boolean isCanceled, Boolean isRefunded) {
+    private Registration(Long recruitmentNo, Long memberNo, UUID orderId, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace, Boolean isCanceled, Boolean isRefunded) {
         this.recruitmentNo = recruitmentNo;
         this.memberNo = memberNo;
+        this.orderId = orderId;
         this.recruitmentTitle = recruitmentTitle;
         this.registrationParticipantCount = participantCount;
         this.registrationDate = registrationDate;
@@ -72,8 +77,8 @@ public class Registration {
         this.isRefunded = isRefunded;
     }
 
-    public static Registration ofNewRegistration(Long recruitmentNo, Long memberNo, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace) {
-        return new Registration(recruitmentNo, memberNo, recruitmentTitle, participantCount,registrationDate, registrationAmount, registrationPlace, false, false);
+    public static Registration ofNewRegistration(Long recruitmentNo, Long memberNo, UUID orderId, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace) {
+        return new Registration(recruitmentNo, memberNo, orderId, recruitmentTitle, participantCount,registrationDate, registrationAmount, registrationPlace, false, false);
     }
 
     public void cancel(Long memberNo) {
