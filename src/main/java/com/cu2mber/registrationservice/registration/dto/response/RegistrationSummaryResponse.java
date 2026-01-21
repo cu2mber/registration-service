@@ -1,8 +1,6 @@
 package com.cu2mber.registrationservice.registration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -10,6 +8,7 @@ public record RegistrationSummaryResponse(
         @JsonProperty("no")
         Long registerNo,
 
+        @JsonProperty("recruitNo")
         Long recruitmentNo,
 
         Long memberNo,

@@ -6,14 +6,19 @@ import com.cu2mber.registrationservice.registration.dto.PageResult;
 import com.cu2mber.registrationservice.registration.dto.PendingRegistration;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCancelCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCreateCommand;
+import com.cu2mber.registrationservice.registration.dto.command.RegistrationPrepareCommand;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationCreateResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationPendingResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
 import com.cu2mber.registrationservice.registration.entity.Registration;
+import com.cu2mber.registrationservice.registration.exception.RegistrationErrorCode;
+import com.cu2mber.registrationservice.registration.exception.RegistrationException;
 import com.cu2mber.registrationservice.registration.repository.RegistrationRepository;
 import com.cu2mber.registrationservice.registration.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.HashOperations;
@@ -34,10 +39,15 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final RedisTemplate<String, Object> registerTemplate;
 
+    @Value("${message.queue.recruit}")
+    private String recruitQueue;
+
+    private final RabbitTemplate rabbitTemplate;
+
     private final RecruitClient recruitClient;
 
     @Override
-    public RegistrationPendingResponse prepareRegistration(RegistrationCreateCommand command) {
+    public RegistrationPendingResponse prepareRegistration(RegistrationPrepareCommand command) {
 
         /** todo 가격 책정 수정
          * 문제: 트래픽 발생 가능성 큼
@@ -51,7 +61,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         BigDecimal amount = recruitInfo.price().multiply(BigDecimal.valueOf(command.participantCount()));
 
-        String orderId = UUID.randomUUID().toString();
+        UUID orderId = UUID.randomUUID();
 
         PendingRegistration pending = new PendingRegistration(
                 orderId,
@@ -59,8 +69,9 @@ public class RegistrationServiceImpl implements RegistrationService {
                 command.recruitmentNo(),
                 command.recruitmentTitle(),
                 command.participantCount(),
+                command.registrationDate(),
                 amount,
-                command.registrationDate()
+                command.registrationPlace()
         );
 
         String key = redisKey(command.memberNo(), orderId);
@@ -75,17 +86,26 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public RegistrationCreateResponse createRegistration(RegistrationCreateCommand command) {
 
+        /** todo: redis orderId로 조회
+         *
+         */
+        String key = redisKey(command.memberNo(), command.orderId());
+        HashOperations<String, String, Object> ops = registerTemplate.opsForHash();
+        PendingRegistration pending = (PendingRegistration) ops.get(key, "data");
+
         Registration registration = Registration.ofNewRegistration(
-                command.recruitmentNo(),
-                command.memberNo(),
-                command.recruitmentTitle(),
-                command.participantCount(),
-                command.registrationDate()
+                pending.recruitmentNo(),
+                pending.memberNo(),
+                pending.recruitmentTitle(),
+                pending.participantCount(),
+                pending.registrationDate(),
+                pending.registrationAmount(),
+                pending.registrationPlace()
         );
 
-        // todo: 결제 완료 이벤트
-
         registrationRepository.save(registration);
+
+        rabbitTemplate.convertAndSend(recruitQueue, registration.getRecruitmentNo());
 
         return new RegistrationCreateResponse(
                 registration.getRegistrationNo(),
@@ -97,14 +117,38 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public RegistrationResponse getRegistration(Long registrationNo) {
+    public RegistrationResponse getMyRegistration(Long registrationNo, Long memberNo) {
 
-        /** todo: 권한에 따라 접근 제한
-         * 일반 사용자: 본인 신청만 조회 가능
-         * 지자체/관리자: 해당 행사 또는 전체 조회 가능
-         */
         Registration registration = registrationRepository.findById(registrationNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 내역입니다."));
+                .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
+
+        if(!registration.getMemberNo().equals(memberNo)) {
+            throw new RegistrationException(RegistrationErrorCode.FORBIDDEN);
+        }
+
+        return new RegistrationResponse(
+                registration.getRegistrationNo(),
+                registration.getRecruitmentNo(),
+                registration.getMemberNo(),
+                registration.getRecruitmentTitle(),
+                registration.getRegistrationParticipantCount(),
+                registration.getRegistrationDate(),
+                registration.getCreatedAt(),
+                registration.getDeletedAt(),
+                registration.getIsCanceled(),
+                registration.getIsRefunded());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RegistrationResponse getRegistration(Long registrationNo, String role) {
+
+        if(!role.equals("ROLE_GOV") && !role.equals("ROLE_ADMIN")) {
+            throw new RegistrationException(RegistrationErrorCode.FORBIDDEN);
+        }
+
+        Registration registration = registrationRepository.findById(registrationNo)
+                .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
 
         return new RegistrationResponse(
                 registration.getRegistrationNo(),
@@ -130,7 +174,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResult<RegistrationSummaryResponse> getRecruitRegistrations(Long recruitmentNo, Pageable pageable) {
+    public PageResult<RegistrationSummaryResponse> getRecruitRegistrations(Long recruitmentNo, String role, Pageable pageable) {
+
+        if(!role.equals("ROLE_GOV")) {
+            throw new RegistrationException(RegistrationErrorCode.FORBIDDEN);
+        }
+
         Page<RegistrationSummaryResponse> registrations = registrationRepository.searchRecruitRegistrations(recruitmentNo, pageable);
         List<RegistrationSummaryResponse> registrationList = registrations.getContent();
 
@@ -139,7 +188,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResult<RegistrationSummaryResponse> getAllRegistrations(Pageable pageable) {
+    public PageResult<RegistrationSummaryResponse> getAllRegistrations(String role, Pageable pageable) {
+
+        if(!role.equals("ROLE_ADMIN")) {
+            throw new RegistrationException(RegistrationErrorCode.FORBIDDEN);
+        }
+
         Page<RegistrationSummaryResponse> registrations = registrationRepository.searchAllRegistrations(pageable);
         List<RegistrationSummaryResponse> registrationList = registrations.getContent();
 
@@ -149,12 +203,13 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public void cancelRegistration(RegistrationCancelCommand command) {
         Registration registration = registrationRepository.findById(command.registrationNo())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 내역입니다."));
+                .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
 
         registration.cancel(command.memberNo());
+        // todo: 이벤트 발생
     }
 
-    private String redisKey(Long memberNo,String orderId) {
+    private String redisKey(Long memberNo, UUID orderId) {
         return "registration:pending:"+memberNo+":"+ orderId;
     }
 }

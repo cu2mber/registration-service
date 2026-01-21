@@ -4,8 +4,6 @@ public record RegistrationCancelCommand(
 
         Long registrationNo,
 
-        Long memberNo,
-
-        Long recruitmentNo
+        Long memberNo
 ) {
 }
