@@ -7,10 +7,7 @@ import com.cu2mber.registrationservice.registration.dto.PendingRegistration;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCancelCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCreateCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationPrepareCommand;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationCreateResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationPendingResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
+import com.cu2mber.registrationservice.registration.dto.response.*;
 import com.cu2mber.registrationservice.registration.entity.Registration;
 import com.cu2mber.registrationservice.registration.exception.RegistrationErrorCode;
 import com.cu2mber.registrationservice.registration.exception.RegistrationException;
@@ -96,6 +93,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registration = Registration.ofNewRegistration(
                 pending.recruitmentNo(),
                 pending.memberNo(),
+                pending.orderId(),
                 pending.recruitmentTitle(),
                 pending.participantCount(),
                 pending.registrationDate(),
@@ -207,6 +205,18 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         registration.cancel(command.memberNo());
         // todo: 이벤트 발생
+    }
+
+    @Override
+    public InternalRegistrationSummaryResponse getInternalRegistration(Long registrationNo) {
+        return registrationRepository.findInternalRegistration(registrationNo)
+                .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
+    }
+
+    @Override
+    public InternalRegistrationSummaryResponse getInternalRegistrationByOrderId(UUID orderId) {
+        return registrationRepository.findInternalRegistrationByOrderId(orderId)
+                .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
     }
 
     private String redisKey(Long memberNo, UUID orderId) {

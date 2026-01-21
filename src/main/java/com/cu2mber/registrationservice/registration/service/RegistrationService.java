@@ -4,11 +4,10 @@ import com.cu2mber.registrationservice.registration.dto.PageResult;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCancelCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCreateCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationPrepareCommand;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationCreateResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationPendingResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationResponse;
-import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
+import com.cu2mber.registrationservice.registration.dto.response.*;
 import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 /**
  * 신청(Registration) 도메인의 비즈니스 로직을 처리하는 서비스 인터페이스입니다.
@@ -99,4 +98,9 @@ public interface RegistrationService {
      * @param command 신청 취소에 필요한 요청 데이터
      */
     void cancelRegistration(RegistrationCancelCommand command);
+
+    InternalRegistrationSummaryResponse getInternalRegistration(Long registrationNo);
+
+    InternalRegistrationSummaryResponse getInternalRegistrationByOrderId(UUID orderId);
+
 }

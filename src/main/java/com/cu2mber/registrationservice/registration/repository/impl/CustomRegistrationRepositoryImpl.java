@@ -1,5 +1,6 @@
 package com.cu2mber.registrationservice.registration.repository.impl;
 
+import com.cu2mber.registrationservice.registration.dto.response.InternalRegistrationSummaryResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
 import com.cu2mber.registrationservice.registration.entity.QRegistration;
 import com.cu2mber.registrationservice.registration.repository.CustomRegistrationRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepository {
@@ -81,5 +84,36 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
                 .where(qRegistration.recruitmentNo.eq(recruitmentNo));
 
         return PageableExecutionUtils.getPage(contents, pageable, count::fetchOne);
+    }
+
+    @Override
+    public Optional<InternalRegistrationSummaryResponse> findInternalRegistration(Long registrationNo) {
+
+        InternalRegistrationSummaryResponse registration = queryFactory.select(Projections.constructor(InternalRegistrationSummaryResponse.class,
+                        qRegistration.registrationNo,
+                        qRegistration.recruitmentNo,
+                        qRegistration.memberNo,
+                        qRegistration.registrationParticipantCount,
+                        qRegistration.isCanceled))
+                .from(qRegistration)
+                .where(qRegistration.registrationNo.eq(registrationNo))
+                .fetchOne();
+
+        return Optional.ofNullable(registration);
+    }
+
+    @Override
+    public Optional<InternalRegistrationSummaryResponse> findInternalRegistrationByOrderId(UUID orderId) {
+        InternalRegistrationSummaryResponse registration = queryFactory.select(Projections.constructor(InternalRegistrationSummaryResponse.class,
+                        qRegistration.registrationNo,
+                        qRegistration.recruitmentNo,
+                        qRegistration.memberNo,
+                        qRegistration.registrationParticipantCount,
+                        qRegistration.isCanceled))
+                .from(qRegistration)
+                .where(qRegistration.orderId.eq(orderId))
+                .fetchOne();
+
+        return Optional.ofNullable(registration);
     }
 }
