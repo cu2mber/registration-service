@@ -1,4 +1,4 @@
-package com.cu2mber.registrationservice.registration.entity;
+package com.cu2mber.registrationservice.registration.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

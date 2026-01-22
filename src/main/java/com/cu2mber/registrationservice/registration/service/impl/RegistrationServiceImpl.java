@@ -3,12 +3,12 @@ package com.cu2mber.registrationservice.registration.service.impl;
 import com.cu2mber.registrationservice.common.client.RecruitClient;
 import com.cu2mber.registrationservice.common.client.RecruitmentSummaryResponse;
 import com.cu2mber.registrationservice.registration.dto.PageResult;
-import com.cu2mber.registrationservice.registration.dto.PendingRegistration;
+import com.cu2mber.registrationservice.registration.domain.PendingRegistration;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCancelCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationCreateCommand;
 import com.cu2mber.registrationservice.registration.dto.command.RegistrationPrepareCommand;
 import com.cu2mber.registrationservice.registration.dto.response.*;
-import com.cu2mber.registrationservice.registration.entity.Registration;
+import com.cu2mber.registrationservice.registration.domain.entity.Registration;
 import com.cu2mber.registrationservice.registration.exception.RegistrationErrorCode;
 import com.cu2mber.registrationservice.registration.exception.RegistrationException;
 import com.cu2mber.registrationservice.registration.repository.RegistrationRepository;
@@ -77,7 +77,13 @@ public class RegistrationServiceImpl implements RegistrationService {
         ops.put(key, "data", pending);
         registerTemplate.expire(key, Duration.ofMinutes(10));
 
-        return new RegistrationPendingResponse(pending.orderId(), pending.recruitmentNo(), pending.recruitmentTitle(), pending.participantCount(), amount, pending.registrationDate());
+        return new RegistrationPendingResponse(
+                pending.orderId(),
+                new RecruitInfo(pending.recruitmentNo(), pending.recruitmentTitle()),
+                pending.participantCount(),
+                amount,
+                pending.registrationDate()
+        );
     }
 
     @Override
