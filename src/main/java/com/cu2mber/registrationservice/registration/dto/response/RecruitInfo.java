@@ -7,9 +7,6 @@ public record RecruitInfo(
         Long recruitmentNo,
 
         @JsonProperty("title")
-        String recruitmentTitle,
-
-        @JsonProperty("place")
-        String recruitmentPlace
+        String recruitmentTitle
 ) {
 }

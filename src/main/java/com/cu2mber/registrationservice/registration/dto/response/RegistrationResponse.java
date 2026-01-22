@@ -21,6 +21,9 @@ public record RegistrationResponse(
         @JsonProperty("date")
         LocalDate registrationDate,
 
+        @JsonProperty("place")
+        String registrationPlace,
+
         @JsonProperty("amount")
         BigDecimal registrationAmount,
 
@@ -32,13 +35,14 @@ public record RegistrationResponse(
 
         Boolean isRefunded
 ) {
-
         public static RegistrationResponse from(Registration registration) {
                 return new RegistrationResponse(
                         registration.getRegistrationNo(),
-                        registration.getRecruitmentNo(),
                         registration.getMemberNo(),
-                        registration.getRecruitmentTitle(),
+                        new RecruitInfo(
+                                registration.getRecruitmentNo(),
+                                registration.getRecruitmentTitle()
+                        ),
                         registration.getRegistrationParticipantCount(),
                         registration.getRegistrationDate(),
                         registration.getRegistrationPlace(),
@@ -49,6 +53,4 @@ public record RegistrationResponse(
                         registration.getIsRefunded()
                 );
         }
-
-
 }

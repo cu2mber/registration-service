@@ -32,8 +32,7 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
                         Projections.constructor(
                                 RecruitInfo.class,
                                 qRegistration.recruitmentNo,
-                                qRegistration.recruitmentTitle,
-                                qRegistration.registrationPlace
+                                qRegistration.recruitmentTitle
                         ),
                         qRegistration.registrationParticipantCount,
                         qRegistration.registrationDate,

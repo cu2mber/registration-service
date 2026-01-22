@@ -124,17 +124,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new RegistrationException(RegistrationErrorCode.FORBIDDEN);
         }
 
-        return new RegistrationResponse(
-                registration.getRegistrationNo(),
-                registration.getRecruitmentNo(),
-                registration.getMemberNo(),
-                registration.getRecruitmentTitle(),
-                registration.getRegistrationParticipantCount(),
-                registration.getRegistrationDate(),
-                registration.getCreatedAt(),
-                registration.getDeletedAt(),
-                registration.getIsCanceled(),
-                registration.getIsRefunded());
+        return RegistrationResponse.from(registration);
     }
 
     @Override
@@ -148,17 +138,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registration = registrationRepository.findById(registrationNo)
                 .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
 
-        return new RegistrationResponse(
-                registration.getRegistrationNo(),
-                registration.getRecruitmentNo(),
-                registration.getMemberNo(),
-                registration.getRecruitmentTitle(),
-                registration.getRegistrationParticipantCount(),
-                registration.getRegistrationDate(),
-                registration.getCreatedAt(),
-                registration.getDeletedAt(),
-                registration.getIsCanceled(),
-                registration.getIsRefunded());
+        return RegistrationResponse.from(registration);
     }
 
     @Override
@@ -209,13 +189,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public InternalRegistrationSummaryResponse getInternalRegistration(Long registrationNo) {
-        return registrationRepository.findInternalRegistration(registrationNo)
+        return registrationRepository.searchInternalRegistration(registrationNo)
                 .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
     }
 
     @Override
     public InternalRegistrationSummaryResponse getInternalRegistrationByOrderId(UUID orderId) {
-        return registrationRepository.findInternalRegistrationByOrderId(orderId)
+        return registrationRepository.searchInternalRegistrationByOrderId(orderId)
                 .orElseThrow(() -> new RegistrationException(RegistrationErrorCode.NOT_FOUND));
     }
 

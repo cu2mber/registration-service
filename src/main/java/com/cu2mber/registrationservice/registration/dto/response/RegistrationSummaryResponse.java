@@ -1,20 +1,18 @@
 package com.cu2mber.registrationservice.registration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record RegistrationSummaryResponse(
         @JsonProperty("no")
-        Long registerNo,
-
-        @JsonProperty("recruitNo")
-        Long recruitmentNo,
+        Long registrationNo,
 
         Long memberNo,
 
-        @JsonProperty("title")
-        String recruitmentTitle,
+        RecruitInfo recruit,
 
         @JsonProperty("participant")
         Integer participantCount,
@@ -22,6 +20,13 @@ public record RegistrationSummaryResponse(
         @JsonProperty("date")
         LocalDate registrationDate,
 
+        @JsonProperty("place")
+        String registrationPlace,
+
+        @JsonProperty("amount")
+        BigDecimal registrationAmount,
+
         LocalDateTime createdAt
 ) {
 }
+
