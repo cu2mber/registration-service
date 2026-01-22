@@ -1,8 +1,9 @@
 package com.cu2mber.registrationservice.registration.dto.response;
 
+import com.cu2mber.registrationservice.registration.entity.Registration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -10,18 +11,18 @@ public record RegistrationResponse(
         @JsonProperty("no")
         Long registerNo,
 
-        Long recruitmentNo,
-
         Long memberNo,
 
-        @JsonProperty("title")
-        String recruitmentTitle,
+        RecruitInfo recruit,
 
         @JsonProperty("participant")
         Integer participantCount,
 
         @JsonProperty("date")
         LocalDate registrationDate,
+
+        @JsonProperty("amount")
+        BigDecimal registrationAmount,
 
         LocalDateTime createdAt,
 
@@ -31,6 +32,23 @@ public record RegistrationResponse(
 
         Boolean isRefunded
 ) {
+
+        public static RegistrationResponse from(Registration registration) {
+                return new RegistrationResponse(
+                        registration.getRegistrationNo(),
+                        registration.getRecruitmentNo(),
+                        registration.getMemberNo(),
+                        registration.getRecruitmentTitle(),
+                        registration.getRegistrationParticipantCount(),
+                        registration.getRegistrationDate(),
+                        registration.getRegistrationPlace(),
+                        registration.getRegistrationAmount(),
+                        registration.getCreatedAt(),
+                        registration.getDeletedAt(),
+                        registration.getIsCanceled(),
+                        registration.getIsRefunded()
+                );
+        }
 
 
 }

@@ -1,6 +1,7 @@
 package com.cu2mber.registrationservice.registration.repository.impl;
 
 import com.cu2mber.registrationservice.registration.dto.response.InternalRegistrationSummaryResponse;
+import com.cu2mber.registrationservice.registration.dto.response.RecruitInfo;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
 import com.cu2mber.registrationservice.registration.entity.QRegistration;
 import com.cu2mber.registrationservice.registration.repository.CustomRegistrationRepository;
@@ -27,11 +28,16 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
         return query
                 .select(Projections.constructor(RegistrationSummaryResponse.class,
                         qRegistration.registrationNo,
-                        qRegistration.recruitmentNo,
                         qRegistration.memberNo,
-                        qRegistration.recruitmentTitle,
+                        Projections.constructor(
+                                RecruitInfo.class,
+                                qRegistration.recruitmentNo,
+                                qRegistration.recruitmentTitle,
+                                qRegistration.registrationPlace
+                        ),
                         qRegistration.registrationParticipantCount,
                         qRegistration.registrationDate,
+                        qRegistration.registrationAmount,
                         qRegistration.createdAt
                 ))
                 .from(qRegistration);
@@ -87,7 +93,7 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
     }
 
     @Override
-    public Optional<InternalRegistrationSummaryResponse> findInternalRegistration(Long registrationNo) {
+    public Optional<InternalRegistrationSummaryResponse> searchInternalRegistration(Long registrationNo) {
 
         InternalRegistrationSummaryResponse registration = queryFactory.select(Projections.constructor(InternalRegistrationSummaryResponse.class,
                         qRegistration.registrationNo,
@@ -103,7 +109,7 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
     }
 
     @Override
-    public Optional<InternalRegistrationSummaryResponse> findInternalRegistrationByOrderId(UUID orderId) {
+    public Optional<InternalRegistrationSummaryResponse> searchInternalRegistrationByOrderId(UUID orderId) {
         InternalRegistrationSummaryResponse registration = queryFactory.select(Projections.constructor(InternalRegistrationSummaryResponse.class,
                         qRegistration.registrationNo,
                         qRegistration.recruitmentNo,
