@@ -1,5 +1,6 @@
 package com.cu2mber.registrationservice.registration.domain.entity;
 
+import com.cu2mber.registrationservice.registration.domain.vo.RegistrationStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "event_registration")
+@Table(name = "event_registrations")
 @Getter
 @ToString
 @NoArgsConstructor
@@ -53,18 +54,16 @@ public class Registration {
     @Column(name = "deleted_at", nullable = true)
     LocalDateTime deletedAt;
 
-    @Column(name = "is_canceled", nullable = false)
-    Boolean isCanceled;
-
-    @Column(name = "is_refunded", nullable = false)
-    Boolean isRefunded;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    RegistrationStatus registrationStatus;
 
     @PrePersist
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    private Registration(Long recruitmentNo, Long memberNo, UUID orderId, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace, Boolean isCanceled, Boolean isRefunded) {
+    private Registration(Long recruitmentNo, Long memberNo, UUID orderId, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace, RegistrationStatus registrationStatus) {
         this.recruitmentNo = recruitmentNo;
         this.memberNo = memberNo;
         this.orderId = orderId;
@@ -73,12 +72,15 @@ public class Registration {
         this.registrationDate = registrationDate;
         this.registrationAmount = registrationAmount;
         this.registrationPlace = registrationPlace;
-        this.isCanceled = isCanceled;
-        this.isRefunded = isRefunded;
+        this.registrationStatus = registrationStatus;
     }
 
     public static Registration ofNewRegistration(Long recruitmentNo, Long memberNo, UUID orderId, String recruitmentTitle, Integer participantCount, LocalDate registrationDate, BigDecimal registrationAmount, String registrationPlace) {
-        return new Registration(recruitmentNo, memberNo, orderId, recruitmentTitle, participantCount,registrationDate, registrationAmount, registrationPlace, false, false);
+        return new Registration(recruitmentNo, memberNo, orderId, recruitmentTitle, participantCount,registrationDate, registrationAmount, registrationPlace, RegistrationStatus.COMPLETED);
+    }
+
+    public void updateStatus(RegistrationStatus registrationStatus) {
+        this.registrationStatus = registrationStatus;
     }
 
     public void cancel(Long memberNo) {
@@ -87,16 +89,12 @@ public class Registration {
             throw new IllegalArgumentException("신청자가 아닙니다.");
         }
 
-        if(this.isCanceled) {
+        if(RegistrationStatus.CANCELED.equals(this.registrationStatus)) {
             throw new IllegalArgumentException("이미 취소된 건 입니다.");
         }
 
-        this.isCanceled = true;
+        this.registrationStatus = RegistrationStatus.CANCELED;
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public void refund() {
-        this.isRefunded = true;
     }
 
 }
