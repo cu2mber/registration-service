@@ -7,8 +7,6 @@ public record RegistrationPrepareCommand(
         Long memberNo,
 
         Long recruitmentNo,
-        
-        String recruitmentTitle,
 
         Integer participantCount,
 

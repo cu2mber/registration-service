@@ -6,16 +6,16 @@ public record RegistrationCreateCommand(
 
         Long memberNo,
 
+        Long recruitmentNo,
+
+        String recruitTitle,
+
+        Integer participantCount,
+
+        String paymentKey,
+
+        String idempotencyKey,
+
         UUID orderId
-//
-//        Long recruitmentNo,
-//
-//        String recruitmentTitle,
-//
-//        Integer participantCount,
-//
-//        LocalDate registrationDate,
-//
-//        String registrationPlace
 ) {
 }

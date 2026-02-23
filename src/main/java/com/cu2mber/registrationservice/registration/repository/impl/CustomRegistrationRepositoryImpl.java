@@ -1,9 +1,9 @@
 package com.cu2mber.registrationservice.registration.repository.impl;
 
+import com.cu2mber.registrationservice.registration.domain.entity.QRegistration;
 import com.cu2mber.registrationservice.registration.dto.response.InternalRegistrationSummaryResponse;
 import com.cu2mber.registrationservice.registration.dto.response.RecruitInfo;
 import com.cu2mber.registrationservice.registration.dto.response.RegistrationSummaryResponse;
-import com.cu2mber.registrationservice.registration.entity.QRegistration;
 import com.cu2mber.registrationservice.registration.repository.CustomRegistrationRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -98,8 +98,8 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
                         qRegistration.registrationNo,
                         qRegistration.recruitmentNo,
                         qRegistration.memberNo,
-                        qRegistration.registrationParticipantCount,
-                        qRegistration.isCanceled))
+                        qRegistration.registrationParticipantCount
+                ))
                 .from(qRegistration)
                 .where(qRegistration.registrationNo.eq(registrationNo))
                 .fetchOne();
@@ -113,8 +113,8 @@ public class CustomRegistrationRepositoryImpl implements CustomRegistrationRepos
                         qRegistration.registrationNo,
                         qRegistration.recruitmentNo,
                         qRegistration.memberNo,
-                        qRegistration.registrationParticipantCount,
-                        qRegistration.isCanceled))
+                        qRegistration.registrationParticipantCount
+                ))
                 .from(qRegistration)
                 .where(qRegistration.orderId.eq(orderId))
                 .fetchOne();

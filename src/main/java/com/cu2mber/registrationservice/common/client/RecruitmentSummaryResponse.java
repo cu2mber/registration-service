@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 public record RecruitmentSummaryResponse(
         Long recruitmentNo,
         String recruitmentStatus,
-        Integer localNo,
+        Long memberLocalNo,
         Long eventNo,
         String recruitmentTitle,
-        BigDecimal price
+        Long price
 ) {
 }

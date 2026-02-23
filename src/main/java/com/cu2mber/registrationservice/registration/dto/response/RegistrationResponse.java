@@ -48,11 +48,7 @@ public record RegistrationResponse(
 
         LocalDateTime createdAt,
 
-        LocalDateTime deletedAt,
-
-        Boolean isCanceled,
-
-        Boolean isRefunded
+        LocalDateTime deletedAt
 ) {
         public static RegistrationResponse from(Registration registration) {
                 return new RegistrationResponse(
@@ -67,9 +63,7 @@ public record RegistrationResponse(
                         registration.getRegistrationPlace(),
                         registration.getRegistrationAmount(),
                         registration.getCreatedAt(),
-                        registration.getDeletedAt(),
-                        registration.getIsCanceled(),
-                        registration.getIsRefunded()
+                        registration.getDeletedAt()
                 );
         }
 }

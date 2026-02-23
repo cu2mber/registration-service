@@ -29,7 +29,6 @@ public class RegistrationController {
         RegistrationPrepareCommand command = new RegistrationPrepareCommand(
                 memberNo,
                 request.recruitmentNo(),
-                request.recruitmentTitle(),
                 request.participantCount(),
                 request.registrationDate(),
                 request.registrationPlace()

@@ -8,13 +8,11 @@ public record RegistrationPrepareRequest(
 
         @JsonProperty("recruitNo")
         Long recruitmentNo,
-        
-        @JsonProperty("title")
-        String recruitmentTitle,
 
         @JsonProperty("participant")
         Integer participantCount,
 
+        // todo: 경유지 번호 or 이름 선택
         @JsonProperty("place")
         String registrationPlace,
 
