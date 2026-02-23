@@ -14,8 +14,7 @@ import com.cu2mber.registrationservice.registration.exception.RegistrationExcept
 import com.cu2mber.registrationservice.registration.repository.RegistrationRepository;
 import com.cu2mber.registrationservice.registration.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.HashOperations;
@@ -28,6 +27,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,12 +36,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final RedisTemplate<String, Object> registerTemplate;
 
-    @Value("${message.queue.recruit}")
-    private String recruitQueue;
-
-    private final RabbitTemplate rabbitTemplate;
-
     private final RecruitClient recruitClient;
+
 
     @Override
     public RegistrationPendingResponse prepareRegistration(RegistrationPrepareCommand command) {
@@ -56,7 +52,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new IllegalArgumentException("신청 할 수 없습니다.");
         }
 
-        BigDecimal amount = recruitInfo.price().multiply(BigDecimal.valueOf(command.participantCount()));
+        BigDecimal amount =  BigDecimal.valueOf(recruitInfo.price()).multiply(BigDecimal.valueOf(command.participantCount()));
 
         UUID orderId = UUID.randomUUID();
 
@@ -64,7 +60,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 orderId,
                 command.memberNo(),
                 command.recruitmentNo(),
-                command.recruitmentTitle(),
+                recruitInfo.recruitmentTitle(),
                 command.participantCount(),
                 command.registrationDate(),
                 amount,
@@ -96,6 +92,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         HashOperations<String, String, Object> ops = registerTemplate.opsForHash();
         PendingRegistration pending = (PendingRegistration) ops.get(key, "data");
 
+        if (pending == null) {
+            log.warn("신청 내역을 찾을 수 없습니다, key={}", key);
+            return null;
+        }
+
+        if (registrationRepository.existsByOrderId(command.orderId())) {
+            return null;
+        }
+
         Registration registration = Registration.ofNewRegistration(
                 pending.recruitmentNo(),
                 pending.memberNo(),
@@ -108,8 +113,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         );
 
         registrationRepository.save(registration);
-
-        rabbitTemplate.convertAndSend(recruitQueue, registration.getRecruitmentNo());
+        registerTemplate.delete(key);
 
         return new RegistrationCreateResponse(
                 registration.getRegistrationNo(),
